@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace/Fart/Tid Kalkulator</title>
+<style>
+/* Generell bakgrunn og font */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Beholder for kalkulatoren */
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+/* Overskrift */
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Input-felt */
+input {
+    margin: 8px 0 15px 0;
+    padding: 12px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Knappen */
+button {
+    padding: 12px;
+    width: 100%;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+/* Hover-effekt */
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Resultat */
+#result {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    font-size: 18px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Pace/Fart/Tid Kalkulator</h1>
+    <p>Fyll inn minst to verdier for å regne ut den tredje.</p>
+
+    <label>Distanse (km):</label>
+    <input type="number" id="distance" step="0.01">
+
+    <label>Tid (minutter):</label>
+    <input type="number" id="time" step="0.01">
+
+    <label>Pace (min/km):</label>
+    <input type="number" id="pace" step="0.01">
+
+    <label>Fart (km/t):</label>
+    <input type="number" id="speed" step="0.01">
+
+    <button onclick="calculate()">Beregn</button>
+
+    <p id="result"></p>
+</div>
+
+<script>
+function calculate() {
+    let distance = parseFloat(document.getElementById("distance").value);
+    let time = parseFloat(document.getElementById("time").value);
+    let paceInput = parseFloat(document.getElementById("pace").value);
+    let speedInput = parseFloat(document.getElementById("speed").value);
+
+    let result = "";
+
+    if(distance && time) {
+        // Beregn pace i min:sek
+        let paceMin = Math.floor(time / distance);
+        let paceSec = Math.round((time / distance - paceMin) * 60);
+        let speed = distance / (time / 60);
+        result = `Pace: ${paceMin}:${paceSec.toString().padStart(2,'0')} min/km, Fart: ${speed.toFixed(2)} km/t`;
+    } else if(distance && paceInput) {
+        // Beregn tid og fart
+        let timeCalc = paceInput * distance;
+        let paceMin = Math.floor(paceInput);
+        let paceSec = Math.round((paceInput - paceMin) * 60);
+        let speed = distance / (timeCalc / 60);
+        result = `Tid: ${timeCalc.toFixed(2)} min, Fart: ${speed.toFixed(2)} km/t, Pace: ${paceMin}:${paceSec.toString().padStart(2,'0')} min/km`;
+    } else if(distance && speedInput) {
+        // Beregn tid og pace
+        let timeCalc = (distance / speedInput) * 60;
+        let paceMin = Math.floor(timeCalc / distance);
+        let paceSec = Math.round((timeCalc / distance - paceMin) * 60);
+        result = `Tid: ${timeCalc.toFixed(2)} min, Pace: ${paceMin}:${paceSec.toString().padStart(2,'0')} min/km`;
+    } else {
+        result = "Fyll inn minst to verdier (distanse + tid/pace/fart).";
+    }
+
+    document.getElementById("result").innerText = result;
+}
+</script>
+
+</body>
+</html>
