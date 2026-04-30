@@ -37,8 +37,27 @@ input {
     font-size: 16px;
 }
 
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.calculate {
+    background: #007BFF;
+    color: white;
+}
+
+.reset {
+    background: #ccc;
+}
+
 #result {
-    margin-top: 15px;
+    margin-top: 20px;
     font-size: 18px;
     text-align: center;
     font-weight: bold;
@@ -64,6 +83,9 @@ input {
     <label>Fart (km/t)</label>
     <input type="number" id="speed" step="0.01">
 
+    <button class="calculate" onclick="calculate()">Beregn</button>
+    <button class="reset" onclick="resetFields()">Nullstill</button>
+
     <div id="result"></div>
 </div>
 
@@ -75,8 +97,12 @@ function parsePace(str) {
     if (!str) return null;
 
     if (str.includes(":")) {
-        let [min, sec] = str.split(":").map(Number);
+        let parts = str.split(":");
+        let min = parseInt(parts[0]);
+        let sec = parseInt(parts[1]);
+
         if (isNaN(min) || isNaN(sec)) return null;
+
         return min + (sec / 60);
     }
 
@@ -84,68 +110,65 @@ function parsePace(str) {
     return isNaN(val) ? null : val;
 }
 
-function formatPace(minPerKm) {
-    let min = Math.floor(minPerKm);
-    let sec = Math.round((minPerKm - min) * 60);
+function formatPace(val) {
+    let min = Math.floor(val);
+    let sec = Math.round((val - min) * 60);
 
     if (sec === 60) {
-        min += 1;
+        min++;
         sec = 0;
     }
 
     return `${min}:${sec.toString().padStart(2,'0')}`;
 }
 
-// --- Hovedlogikk ---
+// --- Hovedfunksjon ---
 
 function calculate() {
-    let d = parseFloat(distance.value);
-    let t = parseFloat(time.value);
-    let p = parsePace(pace.value);
-    let s = parseFloat(speed.value);
+    let d = parseFloat(document.getElementById("distance").value);
+    let t = parseFloat(document.getElementById("time").value);
+    let p = parsePace(document.getElementById("pace").value);
+    let s = parseFloat(document.getElementById("speed").value);
 
-    let filled = [d, t, p, s].filter(v => v !== null && !isNaN(v)).length;
+    let resultText = "";
 
-    if (filled < 2) {
-        result.innerText = "";
-        return;
-    }
-
-    // Distanse + tid
     if (d && t) {
         let paceVal = t / d;
         let speedVal = d / (t / 60);
 
-        pace.value = formatPace(paceVal);
-        speed.value = speedVal.toFixed(2);
+        resultText = `Pace: ${formatPace(paceVal)} min/km | Fart: ${speedVal.toFixed(2)} km/t`;
     }
 
-    // Distanse + pace
     else if (d && p) {
         let timeVal = p * d;
         let speedVal = d / (timeVal / 60);
 
-        time.value = timeVal.toFixed(2);
-        speed.value = speedVal.toFixed(2);
-        pace.value = formatPace(p);
+        resultText = `Tid: ${timeVal.toFixed(2)} min | Fart: ${speedVal.toFixed(2)} km/t`;
     }
 
-    // Distanse + fart
     else if (d && s) {
         let timeVal = (d / s) * 60;
         let paceVal = timeVal / d;
 
-        time.value = timeVal.toFixed(2);
-        pace.value = formatPace(paceVal);
+        resultText = `Tid: ${timeVal.toFixed(2)} min | Pace: ${formatPace(paceVal)} min/km`;
     }
 
-    result.innerText = "Oppdatert ✔️";
+    else {
+        resultText = "Fyll inn minst to verdier";
+    }
+
+    document.getElementById("result").innerText = resultText;
 }
 
-// --- Live oppdatering ---
-document.querySelectorAll("input").forEach(input => {
-    input.addEventListener("input", calculate);
-});
+// --- Nullstill ---
+
+function resetFields() {
+    document.getElementById("distance").value = "";
+    document.getElementById("time").value = "";
+    document.getElementById("pace").value = "";
+    document.getElementById("speed").value = "";
+    document.getElementById("result").innerText = "";
+}
 
 </script>
 
